@@ -52,7 +52,8 @@ dependencies {
             'org.hibernate:hibernate-core:5.2.6.Final',
             'org.hibernate:hibernate-c3p0:5.2.6.Final',
             'com.zaxxer:HikariCP:2.5.1',
-            'com.h2database:h2'
+            'com.h2database:h2',
+            'org.codehaus.groovy:groovy-all:2.4.1'
             // 'com.h2database:h2:1.4.193'
     )
 
