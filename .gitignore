@@ -1,0 +1,35 @@
+# Eclipse project files
+.settings
+.classpath
+.project
+.metadata
+.mymetadata
+.springBeans
+.gradle
+
+# IntelliJ Idea project files
+.idea
+*.iml
+*.ipr
+*.iws
+
+# Netbeans project files
+nbproject
+
+# Always ignore these directories/files
+target
+bin
+build
+out
+*.db
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*

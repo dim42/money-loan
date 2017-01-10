@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    ext {
+        springBootVersion = "1.4.3.RELEASE"
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'eclipse'
+    id 'groovy'
+//    id "org.akhikhl.gretty" version "1.4.0"
+    id 'application'
+    id 'war'
+}
+apply plugin: 'org.springframework.boot'
+
+def gradleWrapperVersion = '3.3'
+def langLevel = 1.8
+
+jar {
+    baseName = 'ml-rest-service'
+    version = '0.1.0'
+}
+
+task "createSrcDirs" doLast {
+    sourceSets*.java.srcDirs*.each { it.mkdirs() }
+    sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+    sourceSets*.groovy.srcDirs*.each { it.mkdirs() }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
+}
+
+sourceCompatibility = langLevel
+targetCompatibility = langLevel
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(
+            'org.springframework.boot:spring-boot-starter-web',
+            'org.hibernate:hibernate-core:5.2.6.Final',
+            'org.hibernate:hibernate-c3p0:5.2.6.Final',
+            'com.zaxxer:HikariCP:2.5.1',
+            'com.h2database:h2'
+            // 'com.h2database:h2:1.4.193'
+    )
+
+    testCompile(
+            'org.springframework.boot:spring-boot-starter-test',
+            'org.spockframework:spock-core:1.0-groovy-2.4',
+            'junit:junit'
+            // 'junit:junit:4.12'
+    )
+}
