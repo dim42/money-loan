@@ -15,7 +15,6 @@ plugins {
     id 'idea'
     id 'eclipse'
     id 'groovy'
-//    id "org.akhikhl.gretty" version "1.4.0"
     id 'application'
     id 'war'
 }
@@ -55,13 +54,11 @@ dependencies {
             'com.zaxxer:HikariCP:2.5.1',
             'com.h2database:h2',
             'org.codehaus.groovy:groovy-all:2.4.1'
-            // 'com.h2database:h2:1.4.193'
     )
 
     testCompile(
             'org.springframework.boot:spring-boot-starter-test',
             'org.spockframework:spock-core:1.0-groovy-2.4',
             'junit:junit'
-            // 'junit:junit:4.12'
     )
 }
