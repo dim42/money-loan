@@ -1,5 +1,7 @@
 package pack.loan.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.webservicex.GeoIP;
 import net.webservicex.GeoIPService;
 import org.slf4j.Logger;
@@ -19,7 +21,8 @@ import pack.loan.dao.LoanRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.String.format;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -59,16 +62,36 @@ public class LoanController {
 
     @RequestMapping(method = GET, path = ALL)
     public LoanResponse getAll() {
-        AtomicInteger i = new AtomicInteger(0);
-        loanRepository.findAll().forEach(loan -> i.incrementAndGet());
-        return new LoanResponse(OK, Integer.toString(i.get()));
+        try {
+            Iterable<Loan> loans = loanRepository.findAll();
+            return new LoanResponse(OK, toJsonString(loans));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new LoanResponse(FAIL, e.getMessage());
+        }
+    }
+
+    private String toJsonString(Iterable<Loan> loans) throws JsonProcessingException {
+        List<LoadDto> dtos = getLoadDtos(loans);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(dtos);
+    }
+
+    private List<LoadDto> getLoadDtos(Iterable<Loan> loans) {
+        List<LoadDto> result = new ArrayList<>();
+        loans.forEach(loan -> result.add(new LoadDto(loan.getAmount(), loan.getTerm(), loan.getPersonalId(), loan.getCountry())));
+        return result;
     }
 
     @RequestMapping(method = GET, path = BY_USER)
     public LoanResponse getByUser(@RequestParam(name = "name") String name) {
-        AtomicInteger i = new AtomicInteger(0);
-        loanRepository.findByLastName(name).forEach(loan -> i.incrementAndGet());
-        return new LoanResponse(OK, Integer.toString(i.get()));
+        try {
+            Iterable<Loan> loans = loanRepository.findByLastName(name);
+            return new LoanResponse(OK, toJsonString(loans));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new LoanResponse(FAIL, e.getMessage());
+        }
     }
 
     @RequestMapping(method = POST, path = APPLY)
@@ -118,7 +141,7 @@ public class LoanController {
         loanApplicationRepository.save(new LoanApplication(countryCode, now));
         Long count = loanApplicationRepository.countFrom(countryCode, from);
         if (count > countLimit) {
-            throw new RuntimeException(format("Loan application limit for country (%s) is exceeded", countryCode));
+            throw new RuntimeException("Loan application limit is exceeded for the country");
         }
     }
 

@@ -44,7 +44,7 @@ class LoanControllerTest extends Specification {
         response.status == OK.value()
         response.contentType.contains('application/json')
         response.contentType == 'application/json;charset=UTF-8'
-        content.content == "1"
         content.status == "OK"
+        content.content == "[{\"amount\":50.45,\"term\":13,\"personalId\":\"12345\",\"country\":\"RUS\"}]"
     }
 }
