@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import pack.loan.dao.BlackPerson;
+import pack.loan.dao.BlacklistRepository;
 import pack.loan.dao.Loan;
 import pack.loan.dao.LoanRepository;
 import pack.loan.rest.MarkerController;
@@ -25,34 +27,13 @@ public class Application {
     }
 
     @Bean
-    public CommandLineRunner demo(LoanRepository repository) {
+    public CommandLineRunner fillBlacklist(BlacklistRepository repository) {
         return (args) -> {
-            repository.save(new Loan("Jack", "Bauer"));
-            repository.save(new Loan("Chloe", "O'Brian"));
-            repository.save(new Loan("Kim", "Bauer"));
-            repository.save(new Loan("David", "Palmer"));
-            repository.save(new Loan("Michelle", "Dessler"));
-
-            log.info("Loans found with findAll():");
-            log.info("-------------------------------");
-            for (Loan loan : repository.findAll()) {
-                log.info(loan.toString());
-            }
-            log.info("");
-
-            // fetch an individual loan by ID
-            Loan loan = repository.findOne(1L);
-            log.info("Loan found with findOne(1L):");
-            log.info("--------------------------------");
-            log.info(loan.toString());
-            log.info("");
-
-            log.info("Loan found with findByLastName('Bauer'):");
-            log.info("--------------------------------------------");
-            for (Loan bauer : repository.findByLastName("Bauer")) {
-                log.info(bauer.toString());
-            }
-            log.info("");
+            repository.save(new BlackPerson("1234"));
+            repository.save(new BlackPerson("1235"));
+            repository.save(new BlackPerson("1236"));
+            long count = repository.count();
+            log.info("Blacklist number:" + count);
         };
     }
 }

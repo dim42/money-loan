@@ -3,12 +3,18 @@ package pack.loan.rest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class LoanRequest {
+    static final String LOAN_AMOUNT = "loan amount";
+    static final String NAME = "name";
+    static final String SURNAME = "surname";
+    static final String PERSONAL_ID = "personal_id";
+    @JsonProperty(LOAN_AMOUNT)
     private String amount;
     private String term;
-    private String name;
-    @JsonProperty("surname")
-    private String surName;
-    @JsonProperty("personal_id")
+    @JsonProperty(NAME)
+    private String firstName;
+    @JsonProperty(SURNAME)
+    private String lastName;
+    @JsonProperty(PERSONAL_ID)
     private String personalId;
 
     public String getAmount() {
@@ -27,20 +33,20 @@ public class LoanRequest {
         this.term = term;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getSurName() {
-        return surName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSurName(String surName) {
-        this.surName = surName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getPersonalId() {
