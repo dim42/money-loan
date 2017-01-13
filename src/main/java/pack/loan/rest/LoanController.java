@@ -135,7 +135,7 @@ public class LoanController {
         return ipAddress;
     }
 
-    private void validateAgainstTime(String countryCode) {
+    private synchronized void validateAgainstTime(String countryCode) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime from = now.plusNanos(-applicationPeriod * 1000000);
         loanApplicationRepository.save(new LoanApplication(countryCode, now));
