@@ -16,6 +16,8 @@ Start the server:
 
 ./gradlew bootRun
 
+URL example: curl http://localhost:8080/loan/all
+
 
 Country service classes have been generated with:
 
