@@ -1,11 +1,12 @@
 package pack.loan.dao;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Table(name = "loan_applications")
 @Entity
@@ -15,15 +16,16 @@ public class LoanApplication {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String country;
-    private Date date;
+    @Column(name = "date")
+    private LocalDateTime dateTime;
 
     // for ORM
     protected LoanApplication() {
     }
 
-    public LoanApplication(String country, Date date) {
+    public LoanApplication(String country, LocalDateTime dateTime) {
         this.country = country;
-        this.date = date;
+        this.dateTime = dateTime;
     }
 
     public Long getId() {
@@ -42,11 +44,11 @@ public class LoanApplication {
         this.country = country;
     }
 
-    public Date getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 }

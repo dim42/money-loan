@@ -1,7 +1,5 @@
 package pack.loan.rest;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static pack.loan.rest.LoanController.*;
 import static pack.loan.rest.LoanRequest.*;
+import static pack.loan.rest.ResultCode.FAIL;
 import static pack.loan.rest.ResultCode.OK;
 
 @RunWith(SpringRunner.class)
@@ -27,53 +26,38 @@ import static pack.loan.rest.ResultCode.OK;
 @AutoConfigureMockMvc
 public class ControllerTest {
 
-    private static final String COLON_DELIMITER = "\":\"";
-    private static final String COMMA_DELIMITER = "\",\"";
+    private static final String COLON = "\":\"";
+    private static final String COMMA = "\",\"";
     @Autowired
     private MockMvc mockMvc;
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @Test
-    public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
-        mockMvc.perform(get(LOAN_PATH + BY_USER)).andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("name:v1"));
-    }
-
-    @Test
-    public void all() throws Exception {
-        mockMvc.perform(get(LOAN_PATH + ALL))
-                .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("name:Spring Community"));
-    }
-
-    @Test
-    public void paramGreetingShouldReturnTailoredMessage() throws Exception {
-        mockMvc.perform(get(LOAN_PATH + BY_USER).param("p1", "Spring Community"))
-                .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("name:Spring Community"));
-    }
-
     @Test
     public void testApplyForLoan() throws Exception {
-        String json = "{\"" + LOAN_AMOUNT + COLON_DELIMITER + "100.35" + COMMA_DELIMITER + "term" + COLON_DELIMITER + 12 + COMMA_DELIMITER + NAME +
-                COLON_DELIMITER + "Name1" + COMMA_DELIMITER + SURNAME + COLON_DELIMITER + "Surname1" + COMMA_DELIMITER + PERSONAL_ID + COLON_DELIMITER + 2222
-                + "\"}";
+        String surname1 = "Surname1";
+        String json = "{\"" + LOAN_AMOUNT + COLON + "100.35" + COMMA + "term" + COLON + 12 + COMMA + NAME + COLON + "Name1" + COMMA + SURNAME + COLON +
+                surname1 + COMMA + PERSONAL_ID + COLON + 2222 + "\"}";
 
         mockMvc.perform(post(LOAN_PATH + APPLY).contentType(APPLICATION_JSON).content(json))
                 .andDo(print()).andDo(log()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(OK.toString()))
                 .andExpect(jsonPath("$.content").value("2222"));
 
+        mockMvc.perform(get(LOAN_PATH + BY_USER).param("name", surname1))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(OK.toString()))
+                .andExpect(jsonPath("$.content").value("1"));
+
         mockMvc.perform(get(LOAN_PATH + ALL))
                 .andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(OK.toString()))
                 .andExpect(jsonPath("$.content").value("1"));
+
+        json = "{\"" + LOAN_AMOUNT + COLON + "100.35" + COMMA + "term" + COLON + 12 + COMMA + NAME + COLON + "Name1" + COMMA + SURNAME + COLON +
+                surname1 + COMMA + PERSONAL_ID + COLON + 1235 + "\"}";
+
+        mockMvc.perform(post(LOAN_PATH + APPLY).contentType(APPLICATION_JSON).content(json))
+                .andDo(print()).andDo(log()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(FAIL.toString()))
+                .andExpect(jsonPath("$.content").value("Person (1235) is in blacklist!"));
     }
 }

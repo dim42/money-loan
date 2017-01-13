@@ -13,10 +13,12 @@ import pack.loan.app.Application;
 import pack.loan.dao.BlackPerson;
 import pack.loan.dao.BlacklistRepository;
 import pack.loan.dao.Loan;
+import pack.loan.dao.LoanApplication;
 import pack.loan.dao.LoanApplicationRepository;
 import pack.loan.dao.LoanRepository;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
@@ -40,8 +42,14 @@ public class LoanController {
     private final LoanRepository loanRepository;
     private final LoanApplicationRepository loanApplicationRepository;
     private final BlacklistRepository blacklistRepository;
+    /*
+    Country service classes have been generated with: wsimport http://www.webservicex.net/geoipservice.asmx?WSDL -keep
+     */
+    private final GeoIPService geoIPService = new GeoIPService();
     @Value("${country.count.limit}")
     private Long countLimit;
+    @Value("${application.period}")
+    private Long applicationPeriod;
 
     public LoanController(LoanRepository loanRepository, LoanApplicationRepository loanApplicationRepository, BlacklistRepository blacklistRepository) {
         this.loanRepository = loanRepository;
@@ -57,47 +65,26 @@ public class LoanController {
     }
 
     @RequestMapping(method = GET, path = BY_USER)
-    public LoanResponse getByUser(@RequestParam(name = "user") String name) {
-        StringBuilder response = new StringBuilder();
-        loanRepository.findByLastName(name).forEach(response::append);
-        return new LoanResponse(OK, response.toString());
+    public LoanResponse getByUser(@RequestParam(name = "name") String name) {
+        AtomicInteger i = new AtomicInteger(0);
+        loanRepository.findByLastName(name).forEach(loan -> i.incrementAndGet());
+        return new LoanResponse(OK, Integer.toString(i.get()));
     }
 
     @RequestMapping(method = POST, path = APPLY)
     public LoanResponse applyForLoan(@RequestBody LoanRequest request, HttpServletRequest httpRequest) {
         try {
             String countryCode = getCountryCode(httpRequest);
-//            Date now = new Date();
-//            Date from = now;
-//            Long count = countryRepository.countFrom(countryCode, from);
-//            if (count > countLimit) {
-//                throw new RuntimeException(format("Loan application limit for country (%s) is excedeed", countryCode));
-//            }
-//            LoanApplication loanApplication = new LoanApplication(countryCode, now);
-//            countryRepository.save(loanApplication);
-
+            validateAgainstTime(countryCode);
             validateAgainstBlacklisted(request.getPersonalId());
-//        validateAgainstTime(request);
             Loan loan = new Loan(request.getAmount(), request.getTerm(), request.getFirstName(), request.getLastName(), request.getPersonalId(), countryCode);
             loanRepository.save(loan);
             return new LoanResponse(OK, loan.getPersonalId());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new LoanResponse(FAIL, "add:");
+            return new LoanResponse(FAIL, e.getMessage());
         }
     }
-
-    private void validateAgainstBlacklisted(String personalId) {
-        BlackPerson person = blacklistRepository.findByPersonalId(personalId);
-        if (person != null) {
-            throw new RuntimeException(format("Person (%s) is in blacklist!", personalId));
-        }
-    }
-
-    /*
-    Country service classes have been generated with: wsimport http://www.webservicex.net/geoipservice.asmx?WSDL -keep
-     */
-    private final GeoIPService geoIPService = new GeoIPService();
 
     private String getCountryCode(HttpServletRequest httpRequest) {
         String ipAddress = getIpAddress(httpRequest);
@@ -123,5 +110,22 @@ public class LoanController {
             throw new RuntimeException("Unknown IP address");
         }
         return ipAddress;
+    }
+
+    private void validateAgainstTime(String countryCode) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.plusNanos(-applicationPeriod * 1000000);
+        loanApplicationRepository.save(new LoanApplication(countryCode, now));
+        Long count = loanApplicationRepository.countFrom(countryCode, from);
+        if (count > countLimit) {
+            throw new RuntimeException(format("Loan application limit for country (%s) is exceeded", countryCode));
+        }
+    }
+
+    private void validateAgainstBlacklisted(String personalId) {
+        BlackPerson person = blacklistRepository.findByPersonalId(personalId);
+        if (person != null) {
+            throw new RuntimeException(format("Person (%s) is in blacklist!", personalId));
+        }
     }
 }
