@@ -86,7 +86,7 @@ public class LoanController {
     @RequestMapping(method = GET, path = BY_USER)
     public LoanResponse getByUser(@RequestParam(name = "name") String name) {
         try {
-            Iterable<Loan> loans = loanRepository.findByLastName(name);
+            List<Loan> loans = loanRepository.findByLastName(name);
             return new LoanResponse(OK, toJsonString(loans));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
