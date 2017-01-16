@@ -9,7 +9,6 @@ public class LoadDto {
     private final String country;
 
     public LoadDto(BigDecimal amount, Integer term, String personalId, String country) {
-
         this.amount = amount;
         this.term = term;
         this.personalId = personalId;

@@ -13,9 +13,10 @@ import pack.loan.dao.BlackPerson;
 import pack.loan.dao.BlacklistRepository;
 import pack.loan.dao.Loan;
 import pack.loan.dao.LoanRepository;
-import pack.loan.rest.MarkerController;
+import pack.loan.rest.ControllerMarker;
+import pack.loan.service.ServiceMarker;
 
-@ComponentScan(basePackageClasses = MarkerController.class)
+@ComponentScan(basePackageClasses = {ControllerMarker.class, ServiceMarker.class})
 @EnableJpaRepositories(basePackageClasses = LoanRepository.class)
 @EntityScan(basePackageClasses = Loan.class)
 @SpringBootApplication
