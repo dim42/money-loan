@@ -21,10 +21,11 @@ import pack.loan.dao.LoanRepository;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static pack.loan.api.CountryService.GEO_IP_SERVICE;
@@ -78,9 +79,8 @@ public class LoanController {
     }
 
     private List<LoadDto> getLoadDtos(Iterable<Loan> loans) {
-        List<LoadDto> result = new ArrayList<>();
-        loans.forEach(loan -> result.add(new LoadDto(loan.getAmount(), loan.getTerm(), loan.getPersonalId(), loan.getCountry())));
-        return result;
+        return StreamSupport.stream(loans.spliterator(), false)
+                .map(loan -> new LoadDto(loan.getAmount(), loan.getTerm(), loan.getPersonalId(), loan.getCountry())).collect(toList());
     }
 
     @RequestMapping(method = GET, path = BY_USER)
