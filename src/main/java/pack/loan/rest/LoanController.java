@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +21,6 @@ import pack.loan.dao.LoanApplication;
 import pack.loan.dao.LoanApplicationRepository;
 import pack.loan.dao.LoanRepository;
 
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,8 +28,6 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static pack.loan.api.CountryService.GEO_IP_SERVICE;
 import static pack.loan.rest.LoanController.LOAN_PATH;
 import static pack.loan.rest.ResultCode.FAIL;
@@ -54,14 +54,14 @@ public class LoanController {
     private Long applicationPeriod;
 
     public LoanController(LoanRepository loanRepository, LoanApplicationRepository loanApplicationRepository, BlacklistRepository blacklistRepository,
-                          @Named(GEO_IP_SERVICE) CountryService countryService) {
+                          @Qualifier(GEO_IP_SERVICE) CountryService countryService) {
         this.loanRepository = loanRepository;
         this.loanApplicationRepository = loanApplicationRepository;
         this.blacklistRepository = blacklistRepository;
         this.countryService = countryService;
     }
 
-    @RequestMapping(method = GET, path = ALL)
+    @GetMapping(ALL)
     public LoanResponse getAll() {
         try {
             Iterable<Loan> loans = loanRepository.findAll();
@@ -83,7 +83,7 @@ public class LoanController {
                 .map(loan -> new LoadDto(loan.getAmount(), loan.getTerm(), loan.getPersonalId(), loan.getCountry())).collect(toList());
     }
 
-    @RequestMapping(method = GET, path = BY_USER)
+    @GetMapping(BY_USER)
     public LoanResponse getByUser(@RequestParam(name = "name") String name) {
         try {
             List<Loan> loans = loanRepository.findByLastName(name);
@@ -94,7 +94,7 @@ public class LoanController {
         }
     }
 
-    @RequestMapping(method = POST, path = APPLY)
+    @PostMapping(APPLY)
     public LoanResponse applyForLoan(@RequestBody LoanRequest request, HttpServletRequest httpRequest) {
         try {
             String countryCode = countryService.getCountryCode(getIpAddress(httpRequest));
