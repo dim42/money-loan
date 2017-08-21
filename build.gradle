@@ -49,16 +49,16 @@ dependencies {
     compile(
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-data-jpa',
-            'org.hibernate:hibernate-core:5.2.6.Final',
-            'org.hibernate:hibernate-c3p0:5.2.6.Final',
-            'com.zaxxer:HikariCP:2.5.1',
+            'org.hibernate:hibernate-core',
+            'org.hibernate:hibernate-c3p0:5.2.10.Final',
+            'com.zaxxer:HikariCP:2.6.3',
             'com.h2database:h2',
-            'org.codehaus.groovy:groovy-all:2.4.1'
+            'org.codehaus.groovy:groovy-all:2.4.12'
     )
 
     testCompile(
             'org.springframework.boot:spring-boot-starter-test',
-            'org.spockframework:spock-core:1.0-groovy-2.4',
+            'org.spockframework:spock-core:1.1-groovy-2.4',
             'junit:junit'
     )
 }
